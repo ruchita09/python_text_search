@@ -15,14 +15,15 @@ class TextSearch():
         self.dFrameDocuments = pd.DataFrame(self.documents)
 
         self.invertedindex = dict()
-
-        # Read Inverted Index to dictionary
-
+        self.invertedpath = os.path.join('/InvertedIndex.csv')
+        self.documentpath = os.path.join('/Documents.csv')
+        
+        # Read Inverted Index to dictionary    
         #Create an Index if it does not exist already
-        with open('C:/Python27/InvertedIndex.csv', mode='a+') as csvfile:
+        with open(self.invertedpath, mode='a+') as csvfile:
             flag = 0
 
-        with open('C:/Python27/InvertedIndex.csv', mode='r') as infile:
+        with open(self.invertedpath, mode='r') as infile:
             reader = csv.reader(infile)
             for rows in reader:
                 if not rows:
@@ -41,15 +42,15 @@ class TextSearch():
         json_doc = dict(json.loads(formatted_json))
 
         #Write the Json document to a csv file, Create one if it does not exist already
-        with open('C:/Python27/Documents.csv', 'a+') as csvfile:
+        with open(self.documentpath, 'a+') as csvfile:
              flag = 0
 
-        with open('C:/Python27/Documents.csv', 'r') as csvfile:
+        with open(self.documentpath, 'r') as csvfile:
              csv_dict = [row for row in csv.DictReader(csvfile)]
              if len(csv_dict) == 0:
                  flag = 1
 
-        f = csv.writer(open("C:/Python27/Documents.csv", "ab+"))
+        f = csv.writer(open(self.documentpath, "ab+"))
         if(flag == 1):
              f.writerow(["id", "text"]) #Header for csv file
         f.writerow([json_doc['id'],json_doc['text']])
@@ -80,7 +81,7 @@ class TextSearch():
                 self.invertedindex[token] = json_doc['id']
 
         #Save the index to csv file
-        with open('C:/Python27/InvertedIndex.csv', 'w') as f:
+        with open(self.invertedpath, 'w') as f:
              for key in self.invertedindex.keys():
                  f.write("%s,%s\n" % (key, self.invertedindex[key]))
 
@@ -126,7 +127,7 @@ class TextSearch():
 
         tempdocs = []
 
-        with open("C:/Python27/Documents.csv", 'r') as f:
+        with open(self.documentpath, 'r') as f:
              for i in range(len_result):
                  f.seek(0,0)
                  reader = csv.DictReader(f)
