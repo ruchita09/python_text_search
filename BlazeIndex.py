@@ -5,7 +5,7 @@ import nltk
 import stopwords
 from nltk.corpus import stopwords
 import pandas as pd
-
+from Constant import DocumentPath,InvertedIndexPath
 
 class TextSearch():
 
@@ -15,15 +15,14 @@ class TextSearch():
         self.dFrameDocuments = pd.DataFrame(self.documents)
 
         self.invertedindex = dict()
-        self.invertedpath = os.path.join('/InvertedIndex.csv')
-        self.documentpath = os.path.join('/Documents.csv')
-        
-        # Read Inverted Index to dictionary    
+
+        # Read Inverted Index to dictionary
+
         #Create an Index if it does not exist already
-        with open(self.invertedpath, mode='a+') as csvfile:
+        with open(InvertedIndexPath, mode='a+') as csvfile:
             flag = 0
 
-        with open(self.invertedpath, mode='r') as infile:
+        with open(InvertedIndexPath, mode='r') as infile:
             reader = csv.reader(infile)
             for rows in reader:
                 if not rows:
@@ -42,15 +41,15 @@ class TextSearch():
         json_doc = dict(json.loads(formatted_json))
 
         #Write the Json document to a csv file, Create one if it does not exist already
-        with open(self.documentpath, 'a+') as csvfile:
+        with open(DocumentPath, 'a+') as csvfile:
              flag = 0
 
-        with open(self.documentpath, 'r') as csvfile:
+        with open(DocumentPath, 'r') as csvfile:
              csv_dict = [row for row in csv.DictReader(csvfile)]
              if len(csv_dict) == 0:
                  flag = 1
 
-        f = csv.writer(open(self.documentpath, "ab+"))
+        f = csv.writer(open(DocumentPath, "ab+"))
         if(flag == 1):
              f.writerow(["id", "text"]) #Header for csv file
         f.writerow([json_doc['id'],json_doc['text']])
@@ -81,7 +80,7 @@ class TextSearch():
                 self.invertedindex[token] = json_doc['id']
 
         #Save the index to csv file
-        with open(self.invertedpath, 'w') as f:
+        with open(InvertedIndexPath, 'w') as f:
              for key in self.invertedindex.keys():
                  f.write("%s,%s\n" % (key, self.invertedindex[key]))
 
@@ -92,7 +91,6 @@ class TextSearch():
 
     #Function for querying the data provided
     def Query(self, words):
-
         length = len(words)
 
         #Formatting the input
@@ -127,7 +125,7 @@ class TextSearch():
 
         tempdocs = []
 
-        with open(self.documentpath, 'r') as f:
+        with open(DocumentPath, 'r') as f:
              for i in range(len_result):
                  f.seek(0,0)
                  reader = csv.DictReader(f)
@@ -145,11 +143,11 @@ class TextSearch():
         return self.documents
 
 
+if __name__ == '__main__':
+    t=TextSearch()
+    if (sys.argv[1] == "add"):
+        t.Add(sys.argv[2])
 
-t=TextSearch()
-if (sys.argv[1] == "add"):
-    t.Add(sys.argv[2])
 
-
-if (sys.argv[1] == "query"):
-    t.Query(sys.argv[2:])
+    if (sys.argv[1] == "query"):
+        t.Query(sys.argv[2:])
